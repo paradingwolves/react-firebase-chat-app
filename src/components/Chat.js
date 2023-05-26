@@ -13,13 +13,14 @@ export const Chat = (props) => {
 
     useEffect(() => {
         const queryMessages = query(messagesRef, where("room", "==", room));
-        onSnapshot(queryMessages, (snapshot) => {
+        const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
             let messages = [];
             snapshot.forEach((doc) => {
                 messages.push({...doc.data(), id: doc.id})
             });
             setMessages(messages);
         });
+        return () => unsubscribe();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -38,8 +39,19 @@ export const Chat = (props) => {
 
     return (
         <div className="chat-app">
-            <div>
-                {messages.map((message) => <h1>{message.text}</h1>)}</div>
+            <div className="header">
+                <h1>Welcome to:  {room.toUpperCase()}</h1>
+            </div>
+            <div className='messages'>
+                {messages.map((message) => (
+                    <div className='message' key={message.id}>
+                        <span className='user'>{message.user}</span>
+                        {message.text}
+                        *
+                        {message.createdAt.toString()}
+                    </div>
+                ))}
+            </div>
             <form onSubmit={handleSubmit} className="new-message-form">
                 <input 
                     className="new-message-input" 
